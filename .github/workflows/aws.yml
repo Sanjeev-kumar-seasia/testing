@@ -29,14 +29,15 @@ jobs:
           docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
 
       # Step 4: Build and Push Docker Image
-      env:
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        echo "Building Docker image with tag: $IMAGE_TAG"
-        docker build -t ${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG} .
-        docker tag ${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG} ${{ secrets.ECR_REPOSITORY }}:latest
-        docker push ${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG}
-        docker push ${{ secrets.ECR_REPOSITORY }}:latest
+      - name: Build and Push Docker Image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "Building Docker image with tag: $IMAGE_TAG"
+          docker build -t ${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG} .
+          docker tag ${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG} ${{ secrets.ECR_REPOSITORY }}:latest
+          docker push ${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG}
+          docker push ${{ secrets.ECR_REPOSITORY }}:latest
 
       # Step 5: Dynamically Create the ECS Task Definition
       - name: Log Task Definition JSON
@@ -81,7 +82,6 @@ jobs:
             "memory": "${{ secrets.ECS_MEMORY }}"
           }
           EOF
-
           echo "Task Definition JSON:"
           cat taskdefinition.json
 
