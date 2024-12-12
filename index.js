@@ -1,26 +1,48 @@
-// index.js
 const express = require('express');
-const dotenv = require('dotenv');
-
-// Load environment variables from .env file
-dotenv.config();
+const AWS = require('aws-sdk');
 
 const app = express();
 
-// Serve a simple page displaying the environment variable MESSAGE
-app.get('/', (req, res) => {
-  const message = process.env.MESSAGE || 'No message set!';
-  res.send(`
-    <html>
-      <body>
-        <h1>${message}</h1>
-      </body>
-    </html>
-  `);
-});
+// Configure AWS SDK
+AWS.config.update({ region: 'us-east-1' }); // Replace with your AWS region
 
-// Start the server on the port from the .env file
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
+const secretsManager = new AWS.SecretsManager();
+
+async function getSecrets(secretName) {
+  try {
+    const data = await secretsManager.getSecretValue({ SecretId: secretName }).promise();
+    if ('SecretString' in data) {
+      return JSON.parse(data.SecretString);
+    } else {
+      throw new Error('Secret is not in string format.');
+    }
+  } catch (err) {
+    console.error('Error retrieving secrets:', err);
+    throw err;
+  }
+}
+
+(async () => {
+  try {
+    const secrets = await getSecrets('my-app-secrets');
+    const message = secrets.MESSAGE || 'No message set!';
+    const port = secrets.PORT || 3000;
+
+    app.get('/', (req, res) => {
+      res.send(`
+        <html>
+          <body>
+            <h1>${message}</h1>
+          </body>
+        </html>
+      `);
+    });
+
+    app.listen(port, () => {
+      console.log(`Server is running on http://localhost:${port}`);
+    });
+  } catch (error) {
+    console.error('Failed to start the application:', error);
+    process.exit(1);
+  }
+})();
