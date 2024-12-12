@@ -21,23 +21,24 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+          
+      # Step 3: Log in to Amazon ECR
       - name: Log in to Amazon ECR
         run: |
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
           docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
 
-      - name: Build and Push Docker Image
-        env:
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t ${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG} .
-          docker tag ${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG} ${{ secrets.ECR_REPOSITORY }}:latest
-          docker push ${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG}
-          docker push ${{ secrets.ECR_REPOSITORY }}:latest
-        # Save the image tag for later use
-        #echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+      # Step 4: Build and Push Docker Image
+      env:
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        echo "Building Docker image with tag $IMAGE_TAG"
+        docker build -t ${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG} .
+        docker tag ${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG} ${{ secrets.ECR_REPOSITORY }}:latest
+        docker push ${{ secrets.ECR_REPOSITORY }}:${IMAGE_TAG}
+        docker push ${{ secrets.ECR_REPOSITORY }}:latest
 
-      # Step 3: Dynamically Create the Task Definition
+      # Step 5: Dynamically Create ECS Task Definition
       - name: Create ECS Task Definition
         run: |
           cat <<EOF > taskdefinition.json
@@ -80,7 +81,7 @@ jobs:
           }
           EOF
 
-      # Step 4: Register the Task Definition
+      # Step 6: Register the ECS Task Definition
       - name: Register Task Definition
         id: register-task-def
         run: |
@@ -90,7 +91,7 @@ jobs:
             --output text)
           echo "TASK_DEFINITION_ARN=${TASK_DEFINITION_ARN}" >> $GITHUB_ENV
 
-      # Step 5: Update the ECS Service
+      # Step 7: Update ECS Service
       - name: Update ECS Service
         run: |
           aws ecs update-service \
