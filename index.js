@@ -24,7 +24,7 @@ async function getSecrets(secretName) {
 
 (async () => {
   try {
-    const secrets = await getSecrets('my-app-secrets');
+    const secrets = await getSecrets('github_actions');
     const message = secrets.MESSAGE || 'No message set!';
     const port = secrets.PORT || 3000;
 
