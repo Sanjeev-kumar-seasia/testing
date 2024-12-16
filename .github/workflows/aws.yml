@@ -62,8 +62,8 @@ jobs:
                 ],
                 "environment": [
                   {
-                    "name": "MY_STATIC_VAR",
-                    "value": "some-static-value"
+                    "name": "MESSAGE",
+                    "value": "/aws/secretsmanager/MESSAGE"
                   }
                 ],
                 "secrets": [
