@@ -62,14 +62,14 @@ jobs:
                 ],
                 "environment": [
                   {
-                    "name": "MESSAGE",
+                    "name": "DATABASE",
                     "value": "/aws/secretsmanager/MESSAGE"
                   }
                 ],
                 "secrets": [
                   {
-                    "name": "DATABASE",
-                    "valueFrom": "arn:aws:secretsmanager:${{ secrets.AWS_REGION }}:311141532026:secret:github_actions-kspcoO"
+                    "name": "MESSAGE",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-1:311141532026:secret:github_actions-kspcoO"
                   }
                 ]
               }
