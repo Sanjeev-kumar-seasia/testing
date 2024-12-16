@@ -63,7 +63,7 @@ jobs:
                 "environment": [
                   {
                     "name": "DATABASE",
-                    "valueFrom": "/aws/secretsmanager/MESSAGE"
+                    "value": "/aws/secretsmanager"
                   }
                 ],
                 "secrets": [
