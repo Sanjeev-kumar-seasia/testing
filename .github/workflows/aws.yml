@@ -42,8 +42,6 @@ jobs:
       # Step 5: Dynamically Create the Task Definition
       - name: Create ECS Task Definition
         run: |
-         MESSAGE_SECRET_ARN="arn:aws:secretsmanager:us-east-1:311141532026:secret:github_actions-kspcoO"
-         MESSAGE=$(aws secretsmanager get-secret-value --secret-id "$MESSAGE_SECRET_ARN" --query SecretString --output text)
           cat <<EOF > taskdefinition.json
           {
             "family": "${{ secrets.ECS_TASK_FAMILY }}",
@@ -62,15 +60,9 @@ jobs:
                     "protocol": "tcp"
                   }
                 ],
-                "environment": [
-                  {
-                    "name": "MESSAGE",
-                    "value": "$MESSAGE"
-                  }
-                ],
                 "secrets": [
                   {
-                    "name": "Database",
+                    "name": "MESSAGE",
                     "valueFrom": "arn:aws:secretsmanager:us-east-1:311141532026:secret:github_actions-kspcoO"
                   }
                 ]
